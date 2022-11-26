@@ -7,6 +7,7 @@
 #define ROBUSTECHO_MAX_USR   64
 
 extern SOCKET robustecho_soc[ROBUSTECHO_MAX_USR];
+extern unsigned short soc_max_index;
 
 int RobustEchoInit();
 SOCKET RobustEchoListen(unsigned port);

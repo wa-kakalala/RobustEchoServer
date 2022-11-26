@@ -3,6 +3,7 @@
 #define ROBUST_BUF_SIZE 4096
 char recv_buf[ROBUST_BUF_SIZE];
 
+
 int main()
 {
     fd_set read_all, read_set;
@@ -28,7 +29,7 @@ int main()
             RobustEchoNewSoc(srv_soc_t, &read_all);
         }
 
-        for (i = 0; (i <= ROBUSTECHO_MAX_USR) && (ready_cnt > 0); i++)
+        for (i = 0; (i <= soc_max_index) && (ready_cnt > 0); i++)
         {
             if (robustecho_soc[i] == INVALID_SOCKET) continue;
             client_soc = robustecho_soc[i];
@@ -39,7 +40,7 @@ int main()
             
             --ready_cnt;
         }
-        for (i = 0; i <= ROBUSTECHO_MAX_USR; i++) {
+        for (i = 0; i <= soc_max_index; i++) {
             if (robustecho_soc[i] == INVALID_SOCKET) continue;
             closesocket(robustecho_soc[i]);
         }  

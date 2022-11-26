@@ -3,6 +3,8 @@
 
 
 SOCKET robustecho_soc[ROBUSTECHO_MAX_USR];
+// 最大的下标
+unsigned short soc_max_index;
 
 int RobustEchoInit() {
 	WSADATA wsa_data;
@@ -12,6 +14,7 @@ int RobustEchoInit() {
 		exit(1);
 	}
 	for (int i = 0; i < ROBUSTECHO_MAX_USR; i++) robustecho_soc[i] = INVALID_SOCKET;
+	soc_max_index = -1;
 	return 0;
 }
 
@@ -42,7 +45,7 @@ SOCKET RobustEchoNewSoc(SOCKET lstn_soc, fd_set* soc_set) {
 	SOCKET acpt_soc = accept(lstn_soc, NULL, 0);
 	if (acpt_soc == INVALID_SOCKET)
 		return INVALID_SOCKET;
-	for (int index = 0; index < ROBUSTECHO_MAX_USR; index++) {
+	for (int index = 0; index <= soc_max_index; index++) {
 		if (robustecho_soc[index] == INVALID_SOCKET) {
 			robustecho_soc[index] = acpt_soc;
 			break;
@@ -53,6 +56,7 @@ SOCKET RobustEchoNewSoc(SOCKET lstn_soc, fd_set* soc_set) {
 		closesocket(acpt_soc);
 		return INVALID_SOCKET;
 	}
+	if (index > soc_max_index) soc_max_index = index;
 	FD_SET(acpt_soc, soc_set);
 	return acpt_soc;
 }

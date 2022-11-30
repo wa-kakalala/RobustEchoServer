@@ -1,10 +1,8 @@
 #include "utils.h"
-#pragma comment(lib, "ws2_32.lib")  /* WinSock使用的库函数 */
-
 
 SOCKET robustecho_soc[ROBUSTECHO_MAX_USR];
 // 最大的下标
-unsigned short soc_max_index;
+int soc_max_index;
 
 int RobustEchoInit() {
 	WSADATA wsa_data;
@@ -56,15 +54,25 @@ SOCKET RobustEchoNewSoc(SOCKET lstn_soc, fd_set* soc_set) {
 		closesocket(acpt_soc);
 		return INVALID_SOCKET;
 	}
-	if (index > soc_max_index) soc_max_index = index;
+	if (index > soc_max_index) {
+		soc_max_index = index;
+		robustecho_soc[soc_max_index] = acpt_soc;
+
+	}
 	FD_SET(acpt_soc, soc_set);
 	return acpt_soc;
 }
 
 int RobustEchoProc(SOCKET clt_soc, char* buf, unsigned int buflen) {
 	int ret = recv(clt_soc, buf, buflen, 0); /* 基于TCP服务的socket */
-	ret = send(clt_soc, buf, buflen, 0); /* 基于TCP的服务器 */
+	ret = send(clt_soc, buf, ret, 0); /* 基于TCP的服务器 */
 	return ret;
+}
+
+int RobustEchoDel(int index) {
+	robustecho_soc[index] = robustecho_soc[soc_max_index];
+	robustecho_soc[soc_max_index--] = INVALID_SOCKET;
+	return 0;
 }
 
 

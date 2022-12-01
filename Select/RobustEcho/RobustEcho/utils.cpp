@@ -1,4 +1,8 @@
 #include "utils.h"
+#include <map>
+using namespace std;
+
+map<int, char*> Data_Buf;
 
 SOCKET robustecho_soc[ROBUSTECHO_MAX_USR];
 // 最大的下标
@@ -41,23 +45,23 @@ SOCKET RobustEchoListen(unsigned port) {
 SOCKET RobustEchoNewSoc(SOCKET lstn_soc, fd_set* soc_set) {
 	int index = 0;
 	SOCKET acpt_soc = accept(lstn_soc, NULL, 0);
+	//printf(" clent: %d \r\n", acpt_soc);
 	if (acpt_soc == INVALID_SOCKET)
 		return INVALID_SOCKET;
-	for (int index = 0; index <= soc_max_index; index++) {
+	for (index = 0; index < ROBUSTECHO_MAX_USR ; index++) {
 		if (robustecho_soc[index] == INVALID_SOCKET) {
 			robustecho_soc[index] = acpt_soc;
+			//printf("index -> %d, socket --> %d \r\n", index, acpt_soc);
 			break;
 		}
 	}
-	if (index == ROBUSTECHO_MAX_USR) /* 已经满了 */
+	if ( index == ROBUSTECHO_MAX_USR ) /* 已经满了 */
 	{
 		closesocket(acpt_soc);
 		return INVALID_SOCKET;
 	}
 	if (index > soc_max_index) {
 		soc_max_index = index;
-		robustecho_soc[soc_max_index] = acpt_soc;
-
 	}
 	FD_SET(acpt_soc, soc_set);
 	return acpt_soc;
@@ -65,6 +69,7 @@ SOCKET RobustEchoNewSoc(SOCKET lstn_soc, fd_set* soc_set) {
 
 int RobustEchoProc(SOCKET clt_soc, char* buf, unsigned int buflen) {
 	int ret = recv(clt_soc, buf, buflen, 0); /* 基于TCP服务的socket */
+	
 	ret = send(clt_soc, buf, ret, 0); /* 基于TCP的服务器 */
 	return ret;
 }

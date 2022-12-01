@@ -31,7 +31,7 @@ int main()
 
         if (FD_ISSET(srv_soc_t, &read_set)) /* 检查TCP的侦听socket */
         {
-            printf("new client\r\n");
+            //printf("new client\r\n");
             RobustEchoNewSoc(srv_soc_t, &read_all);
             if (--ready_cnt <= 0)
                 continue;
@@ -41,8 +41,11 @@ int main()
         {
             if (robustecho_soc[i] == INVALID_SOCKET) continue;
             client_soc = robustecho_soc[i];
+            
             if (!FD_ISSET(client_soc, &read_set))
                 continue;
+            //printf("send func: %d\r\n", client_soc);
+            //printf("soc_max_index: %d \r\n", soc_max_index);
             // 处理数据
             ret = RobustEchoProc(client_soc, recv_buf, ROBUST_BUF_SIZE);
             --ready_cnt;
